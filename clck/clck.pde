@@ -1,6 +1,6 @@
-int startDay = 23; 
+int startDay = 2; 
 int startHour = 16;
-int targDay = 28;
+int targDay = 32;
 int targHour = 17;
 
 int strt = 0;
@@ -42,8 +42,8 @@ int getSec(int d, int h, int m, int s){
 void startPS(){
   PVector strtRB = new PVector(strt, 0);
   PVector strtMD = new PVector(-strt, 0);
-  psRB = new ParticleSystem(origin, height/5);
-  psMD = new ParticleSystem(origin, height/5);
+  psRB = new ParticleSystem(origin, height/6);
+  psMD = new ParticleSystem(origin, height/6);
 }
 
 void drawPS(float pos){
@@ -51,12 +51,12 @@ void drawPS(float pos){
   stroke(80, 200, 180);
   pushMatrix();
   translate(pos*(width/2),0);
-  psRB.update(origin);
+  psRB.update(origin, pos);
   psRB.display();
   popMatrix();
   pushMatrix();
   translate(pos*(-width/2),0);
-  psMD.update(origin);
+  psMD.update(origin, pos);
   psMD.display();
   popMatrix();
 }
