@@ -1,9 +1,6 @@
-int startDay = 2; 
-int startHour = 16;
-int targDay = 32;
-int targHour = 17;
-
 int strt = 0;
+
+float pos = 0.5;
 
 color rb = color(47, 0, 170);
 color md = color(54, 143, 255);
@@ -14,7 +11,7 @@ PVector origin = new PVector(0, 0);
 
 void setup(){
   size(800,200,P3D);
-  strt = getSec(targDay-startDay,abs(targHour-startHour),0,0);
+
   println(strt);
   startPS();
 }
@@ -25,8 +22,9 @@ void draw(){
   translate(width/2,height/2);
   noStroke();
   
-  float pos = getSec(targDay-day(),abs(targHour-hour()),minute(),second())/float(strt);
-
+  pos+=(random(200)-100)/10000;
+  println(pos);
+  
   fill(rb);
   ellipse(pos*(width/2),0,30,30);
   fill(md);
@@ -49,11 +47,13 @@ void startPS(){
 void drawPS(float pos){
   strokeWeight(2);
   stroke(80, 200, 180);
+  
   pushMatrix();
   translate(pos*(width/2),0);
   psRB.update(origin, pos);
   psRB.display();
   popMatrix();
+  
   pushMatrix();
   translate(pos*(-width/2),0);
   psMD.update(origin, pos);
