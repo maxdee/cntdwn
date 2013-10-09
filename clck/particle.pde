@@ -67,7 +67,7 @@ class Particle{
   void update(float pos){
     vel.add(acc);
     loc.add(vel);
-    loc.x = constrain(loc.x, float(-width/2)+4*pos, float(width/2)-4*pos);
+    loc.x = constrain(loc.x, float(-width/2)+4*pos, float(width/2)-4*pos); //WTF does not work properly
     loc.y = constrain(loc.y, -height/2, height/2);
   }
   void applyForce(PVector force){
