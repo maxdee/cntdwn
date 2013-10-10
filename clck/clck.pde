@@ -1,6 +1,8 @@
 int strt = 0;
 
-float pos = 0.5;
+float posX = 0.5;
+float posY = 0;
+float fluct = 0;
 
 color rb = color(47, 0, 170);
 color md = color(54, 143, 255);
@@ -10,7 +12,7 @@ ParticleSystem psMD;
 PVector origin = new PVector(0, 0);
 
 void setup(){
-  size(800,200,P3D);
+  size(800,400,P3D);
 
   println(strt);
   startPS();
@@ -22,15 +24,18 @@ void draw(){
   translate(width/2,height/2);
   noStroke();
   
-  pos+=(random(200)-100)/10000;
-  println(pos);
+ 
+  fluct+=0.01;
+  
+  posY = sin(fluct);
+  posX = cos(fluct)/2+0.5;
   
   fill(rb);
-  ellipse(pos*(width/2),0,30,30);
+  ellipse(posX*(width/2),posY*(height/2),30,30);
   fill(md);
-  ellipse(pos*(-width/2),0,30,30);
+  ellipse(posX*(-width/2),posY*(height/2),30,30);
   
-  drawPS(pos);  
+  drawPS(posX,posY);  
 }
 
 int getSec(int d, int h, int m, int s){
@@ -44,19 +49,17 @@ void startPS(){
   psMD = new ParticleSystem(origin, height/6);
 }
 
-void drawPS(float pos){
-  strokeWeight(2);
-  stroke(80, 200, 180);
+void drawPS(float posX, float posY){
   
   pushMatrix();
-  translate(pos*(width/2),0);
-  psRB.update(origin, pos);
+  translate(posX*(width/2),0);
+  psRB.update(origin, posX, posY);
   psRB.display();
   popMatrix();
   
   pushMatrix();
-  translate(pos*(-width/2),0);
-  psMD.update(origin, pos);
+  translate(posX*(-width/2),0);
+  psMD.update(origin, posX, posY);
   psMD.display();
   popMatrix();
 }

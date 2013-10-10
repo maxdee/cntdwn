@@ -28,7 +28,7 @@ class ParticleSystem{
     particles.add(new Particle(start));
   }
   
-  void update(PVector l, float pos){
+  void update(PVector l, float posX, float posY){
     center = l.get();
     for (int i = 0; i < particles.size(); i++){
       Particle p = particles.get(i);
@@ -36,13 +36,15 @@ class ParticleSystem{
       p.applyForce(force);
       force = b.repell(p);
       p.applyForce(force);      
-      p.update(pos);
+      p.update(posX, posY);
     }
   }
   
   void display(){
     for (int i = 0; i < particles.size(); i++){
       Particle p = particles.get(i);
+      strokeWeight(2);
+      stroke(i%255,0,(i+50)%255);
       point(p.getLoc().x, p.getLoc().y);
     }
   }
@@ -64,11 +66,11 @@ class Particle{
     return loc;
   }
   
-  void update(float pos){
+  void update(float posX, float posY){
     vel.add(acc);
     loc.add(vel);
-    loc.x = constrain(loc.x, float(-width/2)+4*pos, float(width/2)-4*pos);
-    loc.y = constrain(loc.y, -height/2, height/2);
+    loc.x = constrain(loc.x, float(-width/2)+4*posX, float(width/2)-4*posX);
+    loc.y = constrain(loc.y, float(-height/2)+4*posY, float(height/2)-4*posY);
   }
   void applyForce(PVector force){
     acc.add(force);
