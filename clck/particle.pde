@@ -2,41 +2,48 @@
 
 class ParticleSystem{
   ArrayList<Particle> particles;
-  PVector center;
-  Attractor a;
-  Repeller b;
-  int nParticles=500;
-  float aMass = 100;
-  float bMass = 1/nParticles;
-  float avgR;
+  ArrayList<Node> nodes;
+  int nParticles=5000;
+  float rInit;
+  float mNode = 10;
 
   
   ParticleSystem(PVector l, float r){
-    center = l.get();  // center of mass
-    avgR = r;          // avg radius from center of mass -- this will make sense eventually
-    a = new Attractor(center, aMass);
-    b = new Repeller(center, bMass);
+    rInit = r;  
+    nodes = new ArrayList();
     particles = new ArrayList();
-    for (int i = 0; i < nParticles; i++){
-      addParticle();
+  }
+  
+  void addNode(PVector l){
+    nodes.add(new Node(l, mNode));
+    for(int i = 0; i < nParticles; i++){
+      addParticle(l);
     }
   }
   
-  void addParticle(){
+  void addParticle(PVector l){
     float theta = random(-TWO_PI, TWO_PI);
-    PVector start = new PVector(avgR*cos(theta), avgR*sin(theta));
+    PVector start = new PVector(l.x + rInit*cos(theta), l.y + rInit*sin(theta));
     particles.add(new Particle(start));
   }
   
-  void update(PVector l, float pos){
-    center = l.get();
-    for (int i = 0; i < particles.size(); i++){
-      Particle p = particles.get(i);
-      PVector force = a.attract(p);
-      p.applyForce(force);
-      force = b.repell(p);
-      p.applyForce(force);      
-      p.update(pos);
+  void updateNode(PVector l, int i){
+    // update a node's loc
+    Node n = nodes.get(i);
+    n.update(l);
+  }
+    
+  
+  void updateParticles(){
+    // update particle loc
+    for (int j = 0; j < nodes.size(); j++){
+      Node n = nodes.get(j);
+      for (int i = 0; i < particles.size(); i++){
+        Particle p = particles.get(i);
+        PVector force = n.attract(p);
+        p.applyForce(force);
+        p.update();
+      }   
     }
   }
   
@@ -45,6 +52,14 @@ class ParticleSystem{
       Particle p = particles.get(i);
       point(p.getLoc().x, p.getLoc().y);
     }
+    /*** for debugging porpoises *************/
+//    for (int j = 0; j < nodes.size(); j++){
+//      Node n = nodes.get(j);
+//      stroke(255, 0, 0);
+//      strokeWeight(4);
+//      point(n.getLoc().x, n.getLoc().y);
+//    }
+    /****************************************/
   }
 }
 
@@ -53,10 +68,11 @@ class Particle{
   PVector vel;
   PVector acc;
   float mass = 0.1;
+  float iniV = 0.2;
   
   Particle(PVector l){
     loc = l.get();
-    vel = new PVector(random(-0.02, 0.02), random(-0.02, 0.02));
+    vel = new PVector(random(-iniV, iniV), random(-iniV, iniV));
     acc = new PVector(0,0);
    }
   
@@ -64,27 +80,27 @@ class Particle{
     return loc;
   }
   
-  void update(float pos){
-    vel.add(acc);
+  void update(){
+    //vel.add(acc);
     loc.add(vel);
-    loc.x = constrain(loc.x, float(-width/2)+4*pos, float(width/2)-4*pos); //WTF does not work properly
-    loc.y = constrain(loc.y, -height/2, height/2);
   }
   void applyForce(PVector force){
-    acc.add(force);
+    // originally: 
+    // acc.add(force);
+    vel.add(force);
   }
 }
 
-// an attractor will be the center of orbit for a particle system
-class Attractor{
+// node will be attraction points in the particle system
+class Node{
   PVector loc;
   float mass;
   float G;
   
-  Attractor(PVector l, float m){
+  Node(PVector l, float m){
     loc = l.get();
     mass = m;
-    G = map(mouseX, 0, width, 0.01, 1);
+    G = 0.000000675;
   }
   
   void update(PVector l){
@@ -98,28 +114,12 @@ class Attractor{
   PVector attract(Particle p){
     PVector f = PVector.sub(loc, p.loc);
     float dist = f.mag();
-    dist = constrain(dist, 1.0, width); // limit 
-    
+    //dist = constrain(dist, 1.0, width*2); // limit 
     f.normalize();
-    float strength = (G * p.mass) / (dist * dist);
-    f.mult(strength);
-    return f;
-  }
-}
-
-class Repeller extends Attractor{
-  float rG = -0.1;
-  Repeller(PVector l, float m){
-    super(l, m);
-  }
-  
-  PVector repell(Particle p){
-    PVector f = PVector.sub(loc, p.loc);
-    float dist = f.mag();
-    dist = constrain(dist, 1.0, 25.0); // limit 
-    
-    f.normalize();
-    float strength = (rG * p.mass) / (dist * dist);
+    // original, inverse proportion to dist:
+    //float strength = (G * p.mass * mass) / (dist * dist);
+    // directly proportional to dist:
+    float strength = (G * p.mass * this.mass) * dist;
     f.mult(strength);
     return f;
   }
